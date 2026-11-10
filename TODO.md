@@ -33,7 +33,7 @@
 ## Feature backlog
 
 - [ ] Show new comment text instead of just the counter
-- [ ] Notify when CI recovers after a failure
+- [x] Notify when CI recovers after a failure
 - [ ] Notifications for releases, tags and force-pushes
 - [ ] Support several local Forgejo instances
 - [ ] Aggregate multiple events into one message when busy
