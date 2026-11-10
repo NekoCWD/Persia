@@ -4,39 +4,36 @@ on:
   push:
     branches: [main]
 
-env:
-  DOCKER_HOST: tcp://dind:2375/
-  DOCKER_TLS_CERTDIR: ""
-
 jobs:
   build:
     name: Build
     runs-on: ${{ vars.SERV == 'nekocwd' && 'neko-docker' || 'als-tiny' }}
     container:
-      image: alpine:latest
-    services:
-      dind:
-        image: docker:dind
-        env:
-          DOCKER_TLS_CERTDIR: ""
+      image: altlinux.space/actions/runner/containers:sisyphus
 
     steps:
-      - name: Install deps
-        run: apk add --no-cache git nodejs docker-cli docker-cli-buildx
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Login to registry
-        uses: actions/docker-login-action@v3
-        with:
-          registry: ${{ forge.server_url }}
-          username: ${{ forge.repository_owner }}
-          password: ${{ secrets.PACKAGE_TOKEN }}
-      - name: Build and push image
+      - name: Compute image name
         shell: sh
         run: |
-          REGISTRY=$(echo ${{ forge.server_url }} | sed -E 's/^\s*.*:\/\///g')
-          USER=$(echo ${{ forge.repository_owner }} | awk '{print tolower($0)}')
-          IMAGE=$REGISTRY/$USER/persia:latest
-          docker buildx build -f Dockerfile.altlinux -t "$IMAGE" .
-          echo "Publishing"
-          docker push "$IMAGE"
+          REGISTRY=$(echo '${{ forge.server_url }}' | sed -E 's#^\s*[a-z]+://##')
+          USER=$(echo '${{ forge.repository_owner }}' | awk '{print tolower($0)}')
+          REPO=$(echo '${{ forge.repository }}' | awk '{print tolower($0)}')
+          echo "IMAGE=$REGISTRY/$USER/$REPO:latest" >> "$GITHUB_ENV"
+          echo "REGISTRY=$REGISTRY" >> "$GITHUB_ENV"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        run: |
+          podman login --username="<token>" --password="${{ secrets.PACKAGE_TOKEN }}" "${{ env.REGISTRY }}"
+
+      - name: Build tester image
+        run: |
+          podman build \
+            -t "$IMAGE" \
+            -f Dockerfile.altlinux .
+
+      - name: Push tester image
+        run: |
+          podman push "$IMAGE"
