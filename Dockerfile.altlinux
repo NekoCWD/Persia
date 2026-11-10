@@ -16,6 +16,7 @@ RUN CGO_ENABLED=0 go build -trimpath \
 FROM registry.altlinux.org/sisyphus/alt:latest
 
 RUN useradd -m -u 1000 -d /home/persia persia \
+    || chown -R persia:auth /etc/tcb/persia \
     && mkdir -p /data /etc/persia \
     && chown -R persia:persia /data /etc/persia
 
