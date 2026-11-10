@@ -1,0 +1,7 @@
+{{define "text"}}🆕 New {{kind .Kind}} · {{.Repo}} ({{sourceLabel .}})
+#{{.Number}} {{.Title}}
+{{.URL}}{{with excerpt 300 .Body}}
+
+{{.}}{{end}}{{end}}
+
+{{define "html"}}<b>🆕 New {{kind .Kind}}</b> — <code>{{.Repo}}</code> <i>({{sourceLabel .}})</i><br><b>#{{.Number}}</b> <a href="{{.URL}}">{{.Title}}</a>{{with excerpt 300 .Body}}<br><br><small>{{.}}</small>{{end}}{{end}}

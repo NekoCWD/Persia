@@ -1,0 +1,16 @@
+[Unit]
+Description=Persia Matrix/Forgejo mirror notifier
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=persia
+WorkingDirectory=/opt/persia
+EnvironmentFile=/opt/persia/.env
+ExecStart=/opt/persia/persia run -config /opt/persia/config.yaml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

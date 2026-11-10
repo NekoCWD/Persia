@@ -1,0 +1,10 @@
+/bin/
+/persia
+/data/
+*.db
+*.db-shm
+*.db-wal
+.env
+config.yaml
+shortlink.tmpl
+*.override.*

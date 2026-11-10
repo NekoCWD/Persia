@@ -1,0 +1,37 @@
+FROM registry.altlinux.org/sisyphus/alt:latest AS build
+
+RUN apt-get update && \
+    apt-get install -y golang
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+ARG VERSION=dev
+RUN CGO_ENABLED=0 go build -trimpath \
+    -ldflags "-s -w -X main.version=${VERSION}" \
+    -o /out/persia ./cmd/persia
+
+FROM registry.altlinux.org/sisyphus/alt:latest
+
+RUN useradd -m -u 1000 -d /home/persia persia \
+    && mkdir -p /data /etc/persia \
+    && chown -R persia:persia /data /etc/persia
+
+COPY --from=build /out/persia /usr/local/bin/persia
+
+# Notification templates. They are plain files, so they can be overridden by
+# mounting a directory over /etc/persia/messages in docker-compose.
+COPY messages /etc/persia/messages
+
+# Run from /etc/persia so relative paths in config.yaml (for example
+# shortlink_template: "./shortlink.example.tmpl" and
+# message_templates: "./messages") resolve the same way they do outside the
+# container.
+WORKDIR /etc/persia
+
+USER persia
+VOLUME ["/data"]
+
+ENTRYPOINT ["/usr/local/bin/persia", "run", "-config", "/etc/persia/config.yaml"]

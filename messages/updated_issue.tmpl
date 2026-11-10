@@ -1,0 +1,6 @@
+{{define "text"}}🔄 {{kind .Kind}} update · {{.Repo}} ({{sourceLabel .}})
+#{{.Number}} {{.Title}}
+{{join ", " .Changes}}
+{{.URL}}{{end}}
+
+{{define "html"}}<b>🔄 {{kind .Kind}} update</b> — <code>{{.Repo}}</code> <i>({{sourceLabel .}})</i><br><b>#{{.Number}}</b> <a href="{{.URL}}">{{.Title}}</a><br><small>{{join ", " .Changes}}</small>{{end}}

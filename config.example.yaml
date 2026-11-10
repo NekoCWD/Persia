@@ -1,0 +1,141 @@
+# Persia configuration.
+#
+# All secrets are substituted from the environment through ${VAR}. Copy
+# config.example.yaml to config.yaml and fill in the values.
+
+forgejo:
+  # Local (source of truth) instance. /api/v1 is appended automatically.
+  base_url: https://git.example.org
+  token: ${PERSIA_FORGEJO_TOKEN}
+  username: alice
+  # Whose repositories to mirror. When empty, falls back to username.
+  # Use "*" to remove the restriction and scan every owner.
+  owners:
+    - alice
+
+matrix:
+  homeserver: https://matrix.example.org
+  access_token: ${PERSIA_MATRIX_TOKEN}
+  # Optional: leave empty so Persia resolves the user through /account/whoami.
+  # user_id: "@persia:example.org"
+  # Persons to invite into each created room.
+  invite_users:
+    - "@alice:example.org"
+  room_prefix: Persia
+  # Private Matrix room Persia creates for sensitive operations (deploy keys,
+  # mirror recreation, room provisioning). Use "disabled" to turn it off, or
+  # an existing room ID to reuse one.
+  # management_room: auto
+  management_room_name: "Persia management"
+
+  # Directory with Go templates for every Matrix notification. Each
+  # <event>.tmpl file must define "text" and "html" templates. Persia refuses
+  # to start when the directory is missing an event or a template is invalid.
+  message_templates: "./messages"
+
+  # Optional public room alias/link template settings.
+  # public_rooms: false
+  # room_alias: "#persia-{owner}-{repo}:{domain}"
+  # room_link: "https://matrix.to/#/{alias}"
+
+# Topic that marks managed repositories.
+topic: persia-managed
+
+# Target prefix for selecting individual targets, e.g. persia-target-github.
+target_topic_prefix: persia-target-
+
+# Topic that disables mirrors but keeps notifications.
+no_mirror_topic: persia-no-mirror
+
+# Used when a repository has no persia-target-* topics. Empty means all enabled.
+default_targets:
+  - github
+  - gitlab
+  - altlinux
+
+sync_interval: 5m
+request_timeout: 30s
+# Interval at which Forgejo pushes the mirror.
+mirror_interval: 8h
+# Push the mirror immediately on every commit. Defaults to true.
+mirror_sync_on_commit: true
+
+# Engine SQLite database path (can be overridden via PERSIA_DATABASE).
+database: ./data/persia.db
+
+# Report issues and pipelines that already exist when first discovered.
+# Defaults false so old events do not flood the room.
+notify_on_first_seen: false
+# Treat cancelled CI runs as failures.
+notify_cancelled: true
+
+log_level: info
+# HTTP health-check address (JSON /healthz).
+health_addr: ""
+# Separate address serving the per-repository pages at /$RepoName.
+shortlink_addr: ""
+# Landing-page Go html/template. Required when shortlink_addr is set;
+# Persia panics if the path is missing or the template is invalid.
+# Copy shortlink.example.tmpl and adjust it, then point here.
+# shortlink_template: "./shortlink.example.tmpl"
+
+# Name template for SSH deploy keys registered on remote repositories.
+# Placeholders: {repo}, {owner}, {name}, {target}, {namespace}, {remote}.
+# A target may override this with deploy_key_name.
+deploy_key_name: "persia {repo}"
+
+targets:
+  github:
+    type: github
+    base_url: https://api.github.com
+    token: ${PERSIA_GITHUB_TOKEN}
+    # User or organization where mirrors are created. Empty => token owner.
+    namespace: alice
+    visibility: public
+    # Used to build the push mirror URL.
+    ssh_host: github.com
+    ssh_user: git
+    # Optionally override the global deploy_key_name here.
+    # deploy_key_name: "persia {repo} ({target})"
+    # mirror_transport: ssh
+    # Browsable URL shown on landing pages. Host and path come from the
+    # configured push mirror address; placeholders: {host}, {namespace},
+    # {name}, {remote}, {target}, {owner}, {repo}.
+    # repo_url_template: "https://{host}/{remote}"
+    # Optional template written to the remote repository description along
+    # with the local one. Placeholders: {host}, {namespace}, {name},
+    # {remote}, {target}, {owner}, {repo}, {description}.
+    # description: "https://p.example.org/{name}"
+    # Free-form key/value pairs shown by notification and shortlink templates
+    # as .TargetData and .Data on mirror entries.
+    # template_data:
+    #   label: "GitHub"
+    #   docs: "https://docs.example.org/github"
+
+  gitlab:
+    type: gitlab
+    base_url: https://gitlab.com/api/v4
+    token: ${PERSIA_GITLAB_TOKEN}
+    # Group or subgroup, e.g. group/subgroup.
+    namespace: alice
+    visibility: public
+    ssh_host: gitlab.com
+    ssh_user: git
+
+  altlinux:
+    type: forgejo
+    base_url: https://altlinux.space
+    token: ${PERSIA_ALTLINUX_TOKEN}
+    username: alice
+    namespace: alice
+    visibility: public
+    ssh_host: altlinux.space
+    ssh_user: git
+
+  # Example disabled target:
+  # codeberg:
+  #   type: forgejo
+  #   base_url: https://codeberg.org
+  #   token: ${PERSIA_CODEBERG_TOKEN}
+  #   namespace: alice
+  #   disabled: true

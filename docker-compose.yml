@@ -1,0 +1,40 @@
+services:
+  persia:
+    build:
+      context: .
+      args:
+        VERSION: ${PERSIA_VERSION:-dev}
+    image: persia:latest
+    container_name: persia
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PERSIA_DATABASE: /data/persia.db
+    volumes:
+      - ./config.yaml:/etc/persia/config.yaml:ro
+      # Landing-page template referenced by shortlink_template. The image runs
+      # from /etc/persia, so a relative "./shortlink.example.tmpl" in
+      # config.yaml resolves here and works the same as outside Docker.
+      - ./shortlink.example.tmpl:/etc/persia/shortlink.example.tmpl:ro
+      # Matrix notification templates from message_templates. Mount the
+      # directory so wording can be changed without rebuilding the image.
+      - ./messages:/etc/persia/messages:ro
+      - persia-data:/data
+    # Exposed for the reverse proxy; the addresses themselves are configured
+    # through health_addr and shortlink_addr in config.yaml.
+    expose:
+      - "8080"
+      - "8081"
+    # healthcheck relies on health_addr in config.yaml, which must point at
+    # the port below.
+    # health_addr: ":8081"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  persia-data:

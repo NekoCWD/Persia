@@ -1,0 +1,35 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ${{ vars.SERV == 'nekocwd' && 'neko-docker' || 'als-tiny' }}
+    container:
+      image: alpine:edge
+
+    steps:
+      - name: Install deps
+        run: apk add --no-cache git nodejs go
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: |
+          fmt=$(gofmt -l cmd internal)
+          if [ -n "$fmt" ]; then
+            echo "gofmt needed on:"
+            echo "$fmt"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...

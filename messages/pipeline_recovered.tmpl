@@ -1,0 +1,5 @@
+{{define "text"}}✅ CI recovered · {{.Repo}} ({{sourceLabel .}})
+{{.Name}} · {{.Ref}}
+{{.URL}}{{end}}
+
+{{define "html"}}<b>✅ CI recovered</b> — <code>{{.Repo}}</code> <i>({{sourceLabel .}})</i><br>{{.Name}}<br><code>{{.Ref}}</code> · <code>{{short .SHA 8}}</code>{{if .URL}}<br><a href="{{.URL}}">Open run</a>{{end}}{{end}}

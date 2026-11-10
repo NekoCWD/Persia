@@ -1,0 +1,4 @@
+{{define "text"}}⚠️ Push mirror failed · {{.Repo}} → {{.Target}}
+{{.Error}}{{end}}
+
+{{define "html"}}<b>⚠️ Push mirror failed</b><br><code>{{.Repo}}</code> → <b>{{.Target}}</b><br><pre>{{.Error}}</pre>{{end}}

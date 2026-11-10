@@ -1,0 +1,5 @@
+{{define "text"}}❌ CI failed · {{.Repo}} ({{sourceLabel .}})
+{{.Name}} · {{.Ref}} · {{.Status}}
+{{.URL}}{{end}}
+
+{{define "html"}}<b>❌ CI failed</b> — <code>{{.Repo}}</code> <i>({{sourceLabel .}})</i><br>{{.Name}}<br><code>{{.Ref}}</code> · <code>{{short .SHA 8}}</code> · <b>{{.Status}}</b>{{if .URL}}<br><a href="{{.URL}}">Open run</a>{{end}}{{end}}

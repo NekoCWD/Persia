@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Repository}} · Persia</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-dim: #1f6feb;
+      --success: #3fb950;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: .5rem;
+    }
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .card-header .icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .icon-matrix { background: #0dbd8b; color: #fff; }
+    .icon-mirror { background: var(--accent-dim); color: #fff; }
+    .icon-repo { background: #d29922; color: #fff; }
+    .repo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 .25rem 0;
+      word-break: break-all;
+    }
+    .repo-heading {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      margin-bottom: .25rem;
+    }
+    .repo-avatar {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .repo-heading .repo-title { margin: 0; }
+    .repo-sub { color: var(--muted); font-size: .9rem; margin: 0; }
+    .repo-desc {
+      color: var(--text);
+      opacity: .85;
+      margin: .5rem 0 .35rem 0;
+      font-size: .95rem;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .badge {
+      display: inline-block;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+      background: var(--accent-dim);
+      color: #fff;
+      margin-left: .5rem;
+      vertical-align: middle;
+    }
+    .badge-public { background: var(--success); }
+    .mirror-list { list-style: none; padding: 0; margin: 0; }
+    .mirror-list li {
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .mirror-list li:last-child { border-bottom: none; }
+    .mirror-name {
+      font-weight: 600;
+      margin-bottom: .25rem;
+    }
+    .mirror-url {
+      display: block;
+      font-size: .9rem;
+      margin-bottom: .15rem;
+      word-break: break-all;
+    }
+    .mirror-addr {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: .78rem;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .mirror-label {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .12rem .45rem;
+      margin-left: .35rem;
+      border-radius: 999px;
+      background: var(--accent-dim);
+      color: #fff;
+      vertical-align: middle;
+    }
+    .empty { color: var(--muted); font-style: italic; }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .8rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Repository header -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon icon-repo">📦</div>
+        <h2>Repository</h2>
+      </div>
+      <div class="repo-heading">
+        {{if .AvatarURL}}<img class="repo-avatar" src="{{.AvatarURL}}" alt="" loading="lazy">{{end}}
+        <h1 class="repo-title">{{.Repository}}</h1>
+      </div>
+      {{if .Description}}
+        <p class="repo-desc">{{.Description}}</p>
+      {{end}}
+      <p class="repo-sub">Mirrored by Persia</p>
+    </div>
+
+    <!-- Matrix room card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon icon-matrix">💬</div>
+        <h2>Matrix Room</h2>
+      </div>
+      {{if .MatrixLink}}
+        <p>
+          <a href="{{.MatrixLink}}">{{.Alias}}</a>
+          {{if .Public}}<span class="badge badge-public">public</span>{{else}}<span class="badge">private</span>{{end}}
+        </p>
+        <p class="repo-sub">Join the discussion, get notifications, and follow CI status.</p>
+      {{else}}
+        <p class="empty">Private room or no alias configured. Join by invitation only.</p>
+      {{end}}
+    </div>
+
+    <!-- Mirrors card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon icon-mirror">🪞</div>
+        <h2>Mirrors</h2>
+      </div>
+      {{if .Mirrors}}
+        <ul class="mirror-list">
+          {{range .Mirrors}}
+            <li>
+              {{if .URL}}
+                <div class="mirror-name">
+                  {{.Name}}
+                  {{with index .Data "label"}}<span class="mirror-label">{{.}}</span>{{end}}
+                </div>
+                <a class="mirror-url" href="{{.URL}}">{{.URL}}</a>
+                <div class="mirror-addr">{{.Address}}</div>
+              {{else}}
+                <div class="mirror-name">
+                  {{.Name}}
+                  {{with index .Data "label"}}<span class="mirror-label">{{.}}</span>{{end}}
+                </div>
+                <div class="mirror-addr">{{.Address}}</div>
+              {{end}}
+            </li>
+          {{end}}
+        </ul>
+      {{else}}
+        <p class="empty">No active mirrors.</p>
+      {{end}}
+    </div>
+
+    <div class="footer">
+      Generated by Persia · {{.Repository}}
+    </div>
+
+  </div>
+</body>
+</html>
